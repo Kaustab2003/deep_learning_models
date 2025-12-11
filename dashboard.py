@@ -235,21 +235,24 @@ elif page == "⏰ Delay Analysis":
         st.markdown("---")
         st.subheader("🏢 Top 10 Airports by Delay Rate")
         
-        if 'origin' in df_delays.columns:
-            airport_delays = df_delays.groupby('origin').agg({
-                'arr_delay': ['mean', 'count']
+        if 'airport_name' in df_delays.columns and 'arr_flights' in df_delays.columns and 'arr_del15' in df_delays.columns:
+            # Calculate delay rate like in exploration notebook
+            airport_delays = df_delays.groupby('airport_name').agg({
+                'arr_flights': 'sum',
+                'arr_del15': 'sum'
             }).reset_index()
-            airport_delays.columns = ['Airport', 'Avg Delay', 'Flight Count']
-            airport_delays = airport_delays[airport_delays['Flight Count'] >= 100]  # Min flights threshold
-            airport_delays = airport_delays.sort_values('Avg Delay', ascending=False).head(10)
+            airport_delays['delay_rate'] = (airport_delays['arr_del15'] / airport_delays['arr_flights']) * 100
+            airport_delays = airport_delays[airport_delays['arr_flights'] > 1000]  # Filter low-traffic airports
+            airport_delays = airport_delays.sort_values('delay_rate', ascending=False).head(10)
             
             fig = px.bar(
                 airport_delays,
-                x='Airport',
-                y='Avg Delay',
-                color='Avg Delay',
+                x='airport_name',
+                y='delay_rate',
+                color='delay_rate',
                 color_continuous_scale='Reds',
-                title="Top 10 Most Delayed Airports"
+                title="Top 10 Most Delayed Airports (Delay Rate %)",
+                labels={'airport_name': 'Airport', 'delay_rate': 'Delay Rate (%)'}
             )
             st.plotly_chart(fig, use_container_width=True)
     else:
