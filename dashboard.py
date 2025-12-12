@@ -189,7 +189,8 @@ elif page == "⏰ Delay Analysis":
         
         with col2:
             st.subheader("⏱️ Average Delay by Type (minutes)")
-            delay_avgs = df_delays[available_delays].mean().sort_values(ascending=False)
+            delay_avgs = df_delays[available_delays].mean()
+            delay_avgs = delay_avgs.sort_values(ascending=False)  # type: ignore
             
             fig = go.Figure(go.Bar(
                 x=delay_avgs.values,
@@ -243,7 +244,7 @@ elif page == "⏰ Delay Analysis":
             }).reset_index()
             airport_delays['delay_rate'] = (airport_delays['arr_del15'] / airport_delays['arr_flights']) * 100
             airport_delays = airport_delays[airport_delays['arr_flights'] > 1000]  # Filter low-traffic airports
-            airport_delays = airport_delays.sort_values('delay_rate', ascending=False).head(10)
+            airport_delays = airport_delays.sort_values('delay_rate', ascending=False).head(10)  # type: ignore
             
             fig = px.bar(
                 airport_delays,
@@ -311,7 +312,7 @@ elif page == "💰 Price Insights":
             airline_prices = df_pricing.groupby('airline')['price'].agg(['mean', 'std', 'count']).reset_index()
             airline_prices.columns = ['Airline', 'Mean Price', 'Std Dev', 'Flight Count']
             airline_prices = airline_prices[airline_prices['Flight Count'] >= 50]  # Min threshold
-            airline_prices = airline_prices.sort_values('Mean Price', ascending=False).head(15)
+            airline_prices = airline_prices.sort_values('Mean Price', ascending=False).head(15)  # type: ignore
             
             fig = go.Figure()
             fig.add_trace(go.Bar(
